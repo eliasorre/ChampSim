@@ -199,6 +199,8 @@ public:
 
   long operate() override final;
 
+  bool hit_test(uint64_t addr);
+
   void initialize() override final;
   void begin_phase() override final;
   void end_phase(unsigned cpu) override final;

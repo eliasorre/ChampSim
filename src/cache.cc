@@ -439,6 +439,25 @@ long CACHE::operate()
   return progress;
 }
 
+bool CACHE::hit_test(uint64_t addr)
+{
+  auto test_tag = ((addr >> OFFSET_BITS));
+  auto set = get_set_index(addr);
+
+  auto [begin, end] = get_set_span(addr);
+  auto way = std::distance(
+      begin, std::find_if(begin, end, [match = addr >> OFFSET_BITS, shamt = OFFSET_BITS](const auto& entry) { return (entry.address >> shamt) == match; }));
+
+  if (way == NUM_WAY) {
+    for (auto it = internal_PQ.begin(); it != internal_PQ.end(); it++) {
+      if (it->v_address >> OFFSET_BITS == test_tag or it->address >> OFFSET_BITS == test_tag) {
+        return true;
+      }
+    }
+  }
+  return way < NUM_WAY;
+}
+
 // LCOV_EXCL_START exclude deprecated function
 uint64_t CACHE::get_set(uint64_t address) const { return get_set_index(address); }
 // LCOV_EXCL_STOP
